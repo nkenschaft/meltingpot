@@ -15,7 +15,7 @@
 
 import functools
 
-from gym import utils as gym_utils
+from gymnasium import utils as gym_utils
 import matplotlib.pyplot as plt
 from ml_collections import config_dict
 from pettingzoo import utils as pettingzoo_utils
@@ -50,7 +50,7 @@ class _MeltingPotPettingZooEnv(pettingzoo_utils.ParallelEnv):
   def __init__(self, env_config, max_cycles):
     self.env_config = config_dict.ConfigDict(env_config)
     self.max_cycles = max_cycles
-    self._env = substrate.build(self.env_config)
+    self._env = substrate.build(env_config['substrate'], roles=env_config['roles'])
     self._num_players = len(self._env.observation_spec())
     self.possible_agents = [
         PLAYER_STR_FORMAT.format(index=index)
@@ -116,3 +116,6 @@ class _ParallelEnv(_MeltingPotPettingZooEnv, gym_utils.EzPickle):
   def __init__(self, env_config, max_cycles):
     gym_utils.EzPickle.__init__(self, env_config, max_cycles)
     _MeltingPotPettingZooEnv.__init__(self, env_config, max_cycles)
+
+  def reset(self, seed=None, options=None):
+    return super().reset(seed)

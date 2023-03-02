@@ -13,7 +13,7 @@
 # limitations under the License.
 """Binary to run Stable Baselines 3 agents on meltingpot substrates."""
 
-import gym
+import gymnasium
 import stable_baselines3
 from stable_baselines3.common import callbacks
 from stable_baselines3.common import torch_layers
@@ -36,7 +36,7 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
 
   def __init__(
       self,
-      observation_space: gym.spaces.Box,
+      observation_space: gymnasium.spaces.Box,
       features_dim=128,
       num_frames=6,
       fcnet_hiddens=(1024, 128),
@@ -44,7 +44,7 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
     """Construct a custom CNN feature extractor.
 
     Args:
-      observation_space: the observation space as a gym.Space
+      observation_space: the observation space as a gymnasium.Space
       features_dim: Number of features extracted. This corresponds to the number
         of unit for the last layer.
       num_frames: The number of (consecutive) frames to feed into the network.
@@ -83,8 +83,10 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
 
 def main():
   # Config
-  env_name = "commons_harvest_open"
-  env_config = substrate.get_config(env_name)
+  substrate_name = "commons_harvest__open"
+  player_roles = substrate.get_config(substrate_name).default_player_roles
+  env_config = {"substrate": substrate_name, "roles": player_roles}
+
   env = utils.parallel_env(env_config)
   rollout_len = 1000
   total_timesteps = 2000000
@@ -117,7 +119,7 @@ def main():
       env_config=env_config,
   )
   env = ss.observation_lambda_v0(env, lambda x, _: x["RGB"], lambda s: s["RGB"])
-  env = ss.frame_stack_v1(env, num_frames)
+  env = ss.dtype_v0(env, "uint8")
   env = ss.pettingzoo_env_to_vec_env_v1(env)
   env = ss.concat_vec_envs_v1(
       env,
@@ -126,6 +128,7 @@ def main():
       base_class="stable_baselines3")
   env = vec_env.VecMonitor(env)
   env = vec_env.VecTransposeImage(env, True)
+  env = vec_env.VecFrameStack(env, num_frames)
 
   eval_env = utils.parallel_env(
       max_cycles=rollout_len,
@@ -133,12 +136,13 @@ def main():
   )
   eval_env = ss.observation_lambda_v0(eval_env, lambda x, _: x["RGB"],
                                       lambda s: s["RGB"])
-  eval_env = ss.frame_stack_v1(eval_env, num_frames)
+  eval_env = ss.dtype_v0(eval_env, "uint8")
   eval_env = ss.pettingzoo_env_to_vec_env_v1(eval_env)
   eval_env = ss.concat_vec_envs_v1(
       eval_env, num_vec_envs=1, num_cpus=1, base_class="stable_baselines3")
   eval_env = vec_env.VecMonitor(eval_env)
   eval_env = vec_env.VecTransposeImage(eval_env, True)
+  eval_env = vec_env.VecFrameStack(eval_env, num_frames)
   eval_freq = 100000 // (num_envs * num_agents)
 
   policy_kwargs = dict(
