@@ -87,7 +87,7 @@ def main():
   player_roles = substrate.get_config(substrate_name).default_player_roles
   env_config = {"substrate": substrate_name, "roles": player_roles}
 
-  env = utils.parallel_env(env_config)
+  env = utils.parallel_env(render_mode="rgb_array", env_config=env_config)
   rollout_len = 1000
   total_timesteps = 2000000
   num_agents = env.max_num_agents
@@ -114,12 +114,8 @@ def main():
   verbose = 3
   model_path = None  # Replace this with a saved model
 
-  env = utils.parallel_env(
-      max_cycles=rollout_len,
-      env_config=env_config,
-  )
+  env = utils.parallel_env(render_mode="rgb_array", env_config=env_config, max_cycles=rollout_len)
   env = ss.observation_lambda_v0(env, lambda x, _: x["RGB"], lambda s: s["RGB"])
-  env = ss.dtype_v0(env, "uint8")
   env = ss.pettingzoo_env_to_vec_env_v1(env)
   env = ss.concat_vec_envs_v1(
       env,
@@ -133,13 +129,16 @@ def main():
   eval_env = utils.parallel_env(
       max_cycles=rollout_len,
       env_config=env_config,
+      render_mode="rgb_array"
   )
   eval_env = ss.observation_lambda_v0(eval_env, lambda x, _: x["RGB"],
                                       lambda s: s["RGB"])
-  eval_env = ss.dtype_v0(eval_env, "uint8")
   eval_env = ss.pettingzoo_env_to_vec_env_v1(eval_env)
   eval_env = ss.concat_vec_envs_v1(
-      eval_env, num_vec_envs=1, num_cpus=1, base_class="stable_baselines3")
+      eval_env,
+      num_vec_envs=1,
+      num_cpus=1,
+      base_class="stable_baselines3")
   eval_env = vec_env.VecMonitor(eval_env)
   eval_env = vec_env.VecTransposeImage(eval_env, True)
   eval_env = vec_env.VecFrameStack(eval_env, num_frames)
