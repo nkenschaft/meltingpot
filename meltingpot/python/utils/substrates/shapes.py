@@ -352,6 +352,55 @@ xx&x&&xx
 
 CUTE_AVATAR = [CUTE_AVATAR_N, CUTE_AVATAR_E, CUTE_AVATAR_S, CUTE_AVATAR_W]
 
+AMONG_US_N = """
+xx****xx
+x******x
+x*####*x
+x*####*x
+x******x
+x******x
+x**xx**x
+x**xx**x
+"""
+
+AMONG_US_E = """
+xxxxxxxx
+xx****xx
+xx****xx
+x#****xx
+x#****&x
+xx****&x
+xx****xx
+xx**&&xx
+xx**&&xx
+"""
+
+AMONG_US_S = """
+xx****xx
+x******x
+x******x
+x*&&&&*x
+x*&&&&*x
+x******x
+x**xx**x
+x**xx**x
+"""
+
+AMONG_US_W = """
+xxxxxxxx
+xx****xx
+xx****xx
+xx****#x
+x&****#x
+x&****xx
+xx****xx
+xx&&**xx
+xx&&**xx
+"""
+
+AMONG_US = [AMONG_US_N, AMONG_US_E, AMONG_US_S, AMONG_US_W]
+CUTE_AVATAR = AMONG_US
+
 CUTE_AVATAR_ALERT_SPRITE = """
 xxxxxxxx
 xx*xx*xx

@@ -106,8 +106,10 @@ class ParallelMeltingPotEnv(ParallelEnv, EzPickle):
     """See base class."""
     self._env.close()
 
-  def render(self):
-    rgb_arr = self.state()['WORLD.RGB']
+  def render(self, mode=None):
+    if mode is not None:
+      self.render_mode = mode
+    rgb_arr = self.state()[0]['WORLD.RGB']
     if self.render_mode == 'human':
       plt.cla()
       plt.imshow(rgb_arr, interpolation='nearest')
