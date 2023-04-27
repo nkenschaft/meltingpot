@@ -84,6 +84,7 @@ setuptools.setup(
             'matplotlib',
             'pettingzoo>=1.22.3',
             'stable-baselines3',
+            'sb3_contrib',
             'supersuit>=3.7.2',
             'torch',
         ],
