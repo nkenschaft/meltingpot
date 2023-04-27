@@ -1,6 +1,7 @@
 from sys import argv
 
 import stable_baselines3
+import sb3_contrib
 from stable_baselines3.common import vec_env
 
 import supersuit as ss
@@ -18,12 +19,13 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
 
 
 def main():
-    substrate_name = "commons_harvest__open"
-    player_roles = substrate.get_config(substrate_name).default_player_roles
+    recurrent = len(argv) == 3 and argv[2] == "recurrent"
+    substrate_name = "commons_harvest__partnership"
+    player_roles = substrate.get_config(substrate_name).default_player_roles[:4]
     env_config = {"substrate": substrate_name, "roles": player_roles}
     rollout_len = 1000
     num_envs = 1  # number of parallel multi-agent environments
-    num_frames = 4
+    num_frames = 1 if recurrent else 50
 
     env = utils.parallel_env(
         max_cycles=rollout_len,
@@ -44,13 +46,17 @@ def main():
     env = vec_env.VecFrameStack(env, num_frames)
     # edit manually
     model_num = 1 if len(argv) == 1 else int(argv[1])
-    logdir = f"./results/sb3/harvest_open_ppo_paramsharing/PPO_{model_num}"
-    model = stable_baselines3.PPO.load(logdir + "/model")  # noqa: F841
+    logdir = f"./results/sb3/harvest_open_ppo_paramsharing/{'Recurrent'*recurrent}PPO_{model_num}"
+    if recurrent:
+        model = sb3_contrib.RecurrentPPO.load(logdir + "/model")  # noqa: F841
+    else:
+        model = stable_baselines3.PPO.load(logdir + "/model")  # noqa: F841
     obs = env.reset()
-    out_shape = np.array((192, 144)) * 3
-    out = cv2.VideoWriter('output.avi', cv2.VideoWriter_fourcc(*'DIVX'), 10, out_shape)
+    out_shape = np.array((192, 192)) * 3
+    out = cv2.VideoWriter(f"output{model_num}_{'recurrent'*recurrent}.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10, out_shape)
     frames = 1
-    for _ in tqdm(range(1000)):
+    run_frames = 500
+    for _ in tqdm(range(run_frames)):
         # print(f"Frame {frames}")
         action, _states = model.predict(obs)
         obs, rewards, dones, info = env.step(action)

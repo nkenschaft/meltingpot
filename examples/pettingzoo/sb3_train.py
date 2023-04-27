@@ -13,8 +13,11 @@
 # limitations under the License.
 """Binary to run Stable Baselines 3 agents on meltingpot substrates."""
 
+from sys import argv
+
 import gymnasium
 import stable_baselines3
+import sb3_contrib
 from stable_baselines3.common import callbacks
 from stable_baselines3.common import torch_layers
 from stable_baselines3.common import vec_env
@@ -32,6 +35,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
 
 
 # Use this with lambda wrapper returning observations only
+# TODO: try recurrent policy
 class CustomCNN(torch_layers.BaseFeaturesExtractor):
     """Class describing a custom feature extractor."""
 
@@ -40,7 +44,7 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
             observation_space: gymnasium.spaces.Box,
             features_dim=128,
             num_frames=6,
-            fcnet_hiddens=(1024, 128),
+            fcnet_hiddens=(1024, 256, 128),
     ):
         """Construct a custom CNN feature extractor.
 
@@ -69,8 +73,8 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
         )
         flat_out = num_frames * 6 * 7 * 7
         self.fc1 = nn.Linear(in_features=flat_out, out_features=fcnet_hiddens[0])
-        self.fc2 = nn.Linear(
-            in_features=fcnet_hiddens[0], out_features=fcnet_hiddens[1])
+        self.fc2 = nn.Linear(in_features=fcnet_hiddens[0], out_features=fcnet_hiddens[1])
+        # self.fc3 = nn.Linear(in_features=fcnet_hiddens[1], out_features=fcnet_hiddens[2])
 
     def forward(self, observations) -> torch.Tensor:
         # Convert to tensor, rescale to [0, 1], and convert from
@@ -79,30 +83,30 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
         features = self.conv(observations)
         features = F.relu(self.fc1(features))
         features = F.relu(self.fc2(features))
+        # features = F.relu(self.fc3(features))
         return features
 
 
 def main():
+    recurrent = len(argv) > 1 and argv[1] == "recurrent"
     # Config
-    substrate_name = "commons_harvest__open"
-    substrate_config = substrate.get_config(substrate_name)
-    # help(substrate_config)
-    # input()
-    player_roles = substrate.get_config(substrate_name).default_player_roles[:2]
+    # substrate_name = "commons_harvest__open"
+    substrate_name = "commons_harvest__partnership"
+    player_roles = substrate.get_config(substrate_name).default_player_roles[:3]
     # input(player_roles)
     env_config = {"substrate": substrate_name, "roles": player_roles}
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config)
-    rollout_len = 1000
-    total_timesteps = 80000
-    num_agents = env.max_num_agents
+    rollout_len = 500
+    total_timesteps = 1000000
+    num_agents = 4#env.max_num_agents
 
     # Training
-    num_cpus = 12  # number of cpus
+    num_cpus = 16  # number of cpus
     num_envs = 1  # number of parallel multi-agent environments
     # number of frames to stack together; use >4 to avoid automatic
     # VecTransposeImage
-    num_frames = 4
+    num_frames = 1 if recurrent else 16
     # output layer of cnn extractor AND shared layer for policy and value
     # functions
     features_dim = 128
@@ -111,13 +115,12 @@ def main():
     batch_size = (rollout_len * num_envs // 2
                   )  # This is from the rllib baseline implementation
     lr = 0.0001
-    n_epochs = 5
+    n_epochs = 100
     gae_lambda = 1.0
     gamma = 0.99
     target_kl = 0.01
     grad_clip = 40
     verbose = 3
-    model_path = None  # Replace this with a saved model
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config, max_cycles=rollout_len)
     env = ss.observation_lambda_v0(env, lambda x, _: x["RGB"], lambda s: s["RGB"])
@@ -161,32 +164,58 @@ def main():
 
     tensorboard_log = "./results/sb3/harvest_open_ppo_paramsharing"
 
-    model = stable_baselines3.PPO(
-        "CnnPolicy",
-        env=env,
-        learning_rate=lr,
-        n_steps=rollout_len,
-        batch_size=batch_size,
-        n_epochs=n_epochs,
-        gamma=gamma,
-        gae_lambda=gae_lambda,
-        ent_coef=ent_coef,
-        max_grad_norm=grad_clip,
-        target_kl=target_kl,
-        policy_kwargs=policy_kwargs,
-        tensorboard_log=tensorboard_log,
-        verbose=verbose,
-    )
+    model_path = None #tensorboard_log + "/RecurrentPPO_15/model"
     if model_path is not None:
-        model = stable_baselines3.PPO.load(model_path, env=env)
+        if recurrent:
+            model = sb3_contrib.RecurrentPPO.load(model_path, env=env)
+        else:
+            model = stable_baselines3.PPO.load(model_path, env=env)
+    elif recurrent:
+        model = sb3_contrib.RecurrentPPO(
+            "CnnLstmPolicy",
+            env=env,
+            learning_rate=lr,
+            n_steps=rollout_len,
+            batch_size=batch_size,
+            n_epochs=n_epochs,
+            gamma=gamma,
+            gae_lambda=gae_lambda,
+            ent_coef=ent_coef,
+            max_grad_norm=grad_clip,
+            # target_kl=target_kl,
+            policy_kwargs=policy_kwargs,
+            tensorboard_log=tensorboard_log,
+            verbose=verbose,
+        )
+    else:
+        model = stable_baselines3.PPO(
+            "CnnPolicy",
+            env=env,
+            learning_rate=lr,
+            n_steps=rollout_len,
+            batch_size=batch_size,
+            n_epochs=n_epochs,
+            gamma=gamma,
+            gae_lambda=gae_lambda,
+            ent_coef=ent_coef,
+            max_grad_norm=grad_clip,
+            target_kl=target_kl,
+            policy_kwargs=policy_kwargs,
+            tensorboard_log=tensorboard_log,
+            verbose=verbose,
+        )
     eval_callback = callbacks.EvalCallback(
         eval_env, eval_freq=eval_freq, best_model_save_path=tensorboard_log)
     print("Starting training...")
-    model.learn(total_timesteps=total_timesteps, callback=eval_callback)
+    try:
+        model.learn(total_timesteps=total_timesteps, progress_bar=True, callback=eval_callback)
+    except KeyboardInterrupt:
+        pass
     print("\nDone training!\n")
 
     logdir = model.logger.dir
     model.save(logdir + "/model")
+    print("Model saved to {}".format(logdir))
     del model
     # model = stable_baselines3.PPO.load(logdir + "/model")  # noqa: F841
     # obs = env.reset()

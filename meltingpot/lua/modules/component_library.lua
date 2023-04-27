@@ -993,6 +993,10 @@ function Edible:onEnter(enteringGameObject, contactName)
       -- Reward the player who ate the edible.
       local avatarComponent = enteringGameObject:getComponent('Avatar')
       avatarComponent:addReward(self._config.rewardForEating)
+      if enteringGameObject:hasComponent('PeriodicNeed') then
+        local periodicNeedComponent = enteringGameObject:getComponent('PeriodicNeed')
+        periodicNeedComponent:resetDriveLevel()
+      end
       events:add('edible_consumed', 'dict',
                  'player_index', avatarComponent:getIndex())  -- int
       -- Change the edible to its wait (disabled) state.
