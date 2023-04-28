@@ -52,7 +52,7 @@ def main():
     else:
         model = stable_baselines3.PPO.load(logdir + "/model")  # noqa: F841
     obs = env.reset()
-    out_shape = np.array((192, 192)) * 3
+    out_shape = np.array((160, 160)) * 3
     out = cv2.VideoWriter(f"output{model_num}_{'recurrent'*recurrent}.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10, out_shape)
     frames = 1
     run_frames = 500
