@@ -352,7 +352,7 @@ xx&x&&xx
 
 CUTE_AVATAR = [CUTE_AVATAR_N, CUTE_AVATAR_E, CUTE_AVATAR_S, CUTE_AVATAR_W]
 
-AMONG_US_N = """
+AMONG_US_S = """
 xx****xx
 x******x
 x*####*x
@@ -363,7 +363,7 @@ x**xx**x
 x**xx**x
 """
 
-AMONG_US_E = """
+AMONG_US_W = """
 xxxxxxxx
 xx****xx
 xx****xx
@@ -375,7 +375,7 @@ xx**&&xx
 xx**&&xx
 """
 
-AMONG_US_S = """
+AMONG_US_N = """
 xx****xx
 x******x
 x******x
@@ -386,7 +386,7 @@ x**xx**x
 x**xx**x
 """
 
-AMONG_US_W = """
+AMONG_US_E = """
 xxxxxxxx
 xx****xx
 xx****xx

@@ -148,7 +148,7 @@ WAAAA          AAAAW
 WWWWWWWWWWWWWWWWWWWW
 """
 
-ASCII_MAP = BIG_PATCH
+ASCII_MAP = ONE_PATCH
 
 # `prefab` determines which prefab game object to use for each `char` in the
 # ascii map.
@@ -571,14 +571,6 @@ def create_avatar_object(player_idx: int,
                     "penaltyForBeingZapped": 0,
                     "rewardForZapping": 0,
                 }
-                # "kwargs": {
-                #     "cooldownTime": 1e30,
-                #     "beamLength": 0,
-                #     "beamRadius": 0,
-                #     "framesTillRespawn": 0,
-                #     "penaltyForBeingZapped": 0,
-                #     "rewardForZapping": 0,
-                # }
             },
             {
                 "component": "ReadyToShootObservation",

@@ -92,7 +92,7 @@ def main():
     # Config
     # substrate_name = "commons_harvest__open"
     substrate_name = "commons_harvest__open"
-    player_roles = substrate.get_config(substrate_name).default_player_roles
+    player_roles = substrate.get_config(substrate_name).default_player_roles[:4]
     # input(player_roles)
     env_config = {"substrate": substrate_name, "roles": player_roles}
 
@@ -102,7 +102,7 @@ def main():
     num_agents = 4#env.max_num_agents
 
     # Training
-    num_cpus = 16  # number of cpus
+    num_cpus = 8  # number of cpus
     num_envs = 1  # number of parallel multi-agent environments
     # number of frames to stack together; use >4 to avoid automatic
     # VecTransposeImage

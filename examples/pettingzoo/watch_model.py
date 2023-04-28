@@ -38,7 +38,7 @@ def main():
     env = ss.concat_vec_envs_v1(
         env,
         num_vec_envs=1,
-        num_cpus=1,
+        num_cpus=16,
         base_class="stable_baselines3"
     )
     env = vec_env.VecMonitor(env)
@@ -58,10 +58,6 @@ def main():
     run_frames = 500
     for _ in tqdm(range(run_frames)):
         # print(f"Frame {frames}")
-        action, _states = model.predict(obs)
-        obs, rewards, dones, info = env.step(action)
-        if 'terminal_observation' in info[0].keys():
-            break
         # save frame to video file
         frame = env.venv.venv.venv.venv.vec_envs[0].par_env.aec_env.env.env.env.render(mode='rgb_array')
         # swap r and b channels
@@ -69,6 +65,10 @@ def main():
         frame = frame[:, :, [2, 1, 0]].repeat(3, axis=0).repeat(3, axis=1)
         frames += 1
         out.write(frame)
+        action, _states = model.predict(obs)
+        obs, rewards, dones, info = env.step(action)
+        if 'terminal_observation' in info[0].keys():
+            break
     out.release()
 
 
