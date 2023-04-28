@@ -98,7 +98,7 @@ def main():
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config)
     rollout_len = 500
-    total_timesteps = 1000000
+    total_timesteps = 74997
     num_agents = 4#env.max_num_agents
 
     # Training

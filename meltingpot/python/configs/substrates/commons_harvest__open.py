@@ -83,22 +83,45 @@ ONE_PATCH = """
 WWWWWWWWWWWWWWWWWWWW
 W                  W
 W                  W
-W        PP        W
+W        QP        W
 W                  W
 W                  W
 W                  W
 W       AAAA       W
 W      AAAAAA      W
-W  Q   AAAAAA   Q  W
-W  Q   AAAAAA   Q  W
+W  P   AAAAAA   Q  W
+W  Q   AAAAAA   P  W
 W      AAAAAA      W
 W       AAAA       W
 W                  W
 W                  W
 W                  W
-W        PP        W
+W        PQ        W
 W                  W
 W                  W
+WWWWWWWWWWWWWWWWWWWW
+"""
+
+BIG_PATCH = """
+WWWWWWWWWWWWWWWWWWWW
+W        QP        W
+W                  W
+W                  W
+W       AAAA       W
+W                  W
+W                  W
+W       AAAA       W
+W      AAAAAA      W
+WP     AAAAAA     QW
+WQ     AAAAAA     PW
+W      AAAAAA      W
+W       AAAA       W
+W                  W
+W                  W
+W                  W
+W                  W
+W                  W
+W        PQ        W
 WWWWWWWWWWWWWWWWWWWW
 """
 
@@ -125,10 +148,7 @@ WAAAA          AAAAW
 WWWWWWWWWWWWWWWWWWWW
 """
 
-BIG_PATCH = """
-"""
-
-ASCII_MAP = ONE_PATCH
+ASCII_MAP = FOUR_PATCH
 
 # `prefab` determines which prefab game object to use for each `char` in the
 # ascii map.
@@ -543,14 +563,22 @@ def create_avatar_object(player_idx: int,
             },
             {
                 "component": "Zapper",
-                "kwargs": {
-                    "cooldownTime": 2,
-                    "beamLength": 3,
-                    "beamRadius": 1,
-                    "framesTillRespawn": 4,
-                    "penaltyForBeingZapped": 0,
-                    "rewardForZapping": 0,
-                }
+                # "kwargs": {
+                #     "cooldownTime": 4,
+                #     "beamLength": 3,
+                #     "beamRadius": 1,
+                #     "framesTillRespawn": 4,
+                #     "penaltyForBeingZapped": 0,
+                #     "rewardForZapping": 0,
+                # }
+                    "kwargs": {
+                        "cooldownTime": 1e30,
+                        "beamLength": 0,
+                        "beamRadius": 0,
+                        "framesTillRespawn": 0,
+                        "penaltyForBeingZapped": 0,
+                        "rewardForZapping": 0,
+                    }
             },
             {
                 "component": "ReadyToShootObservation",
