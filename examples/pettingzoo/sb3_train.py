@@ -91,7 +91,7 @@ def main():
     recurrent = len(argv) > 1 and argv[1] == "recurrent"
     # Config
     # substrate_name = "commons_harvest__open"
-    substrate_name = "commons_harvest__partnership"
+    substrate_name = "commons_harvest__open"
     player_roles = substrate.get_config(substrate_name).default_player_roles[:3]
     # input(player_roles)
     env_config = {"substrate": substrate_name, "roles": player_roles}

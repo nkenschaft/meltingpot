@@ -20,7 +20,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
 
 def main():
     recurrent = len(argv) == 3 and argv[2] == "recurrent"
-    substrate_name = "commons_harvest__partnership"
+    substrate_name = "commons_harvest__open"
     player_roles = substrate.get_config(substrate_name).default_player_roles[:4]
     env_config = {"substrate": substrate_name, "roles": player_roles}
     rollout_len = 1000

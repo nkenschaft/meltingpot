@@ -541,17 +541,17 @@ def create_avatar_object(player_idx: int,
                     "spriteMap": custom_sprite_map,
                 }
             },
-            # {
-            #     "component": "Zapper",
-            #     "kwargs": {
-            #         "cooldownTime": 2,
-            #         "beamLength": 3,
-            #         "beamRadius": 1,
-            #         "framesTillRespawn": 4,
-            #         "penaltyForBeingZapped": 0,
-            #         "rewardForZapping": 0,
-            #     }
-            # },
+            {
+                "component": "Zapper",
+                "kwargs": {
+                    "cooldownTime": 2,
+                    "beamLength": 3,
+                    "beamRadius": 1,
+                    "framesTillRespawn": 4,
+                    "penaltyForBeingZapped": 0,
+                    "rewardForZapping": 0,
+                }
+            },
             {
                 "component": "ReadyToShootObservation",
             },
