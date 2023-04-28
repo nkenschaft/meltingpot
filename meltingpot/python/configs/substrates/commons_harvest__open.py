@@ -108,17 +108,17 @@ W        QP        W
 W                  W
 W                  W
 W       AAAA       W
-W                  W
-W                  W
+W     AAAAAAAA     W
+W    AAAAAAAAAA    W
+W    AAAAAAAAAA    W
+W   AAAAAAAAAAAA   W
+WP  AAAAAAAAAAAA  QW
+WQ  AAAAAAAAAAAA  PW
+W   AAAAAAAAAAAA   W
+W    AAAAAAAAAA    W
+W    AAAAAAAAAA    W
+W     AAAAAAAA     W
 W       AAAA       W
-W      AAAAAA      W
-WP     AAAAAA     QW
-WQ     AAAAAA     PW
-W      AAAAAA      W
-W       AAAA       W
-W                  W
-W                  W
-W                  W
 W                  W
 W                  W
 W        PQ        W
@@ -148,7 +148,7 @@ WAAAA          AAAAW
 WWWWWWWWWWWWWWWWWWWW
 """
 
-ASCII_MAP = FOUR_PATCH
+ASCII_MAP = BIG_PATCH
 
 # `prefab` determines which prefab game object to use for each `char` in the
 # ascii map.
@@ -563,22 +563,22 @@ def create_avatar_object(player_idx: int,
             },
             {
                 "component": "Zapper",
+                "kwargs": {
+                    "cooldownTime": 4,
+                    "beamLength": 3,
+                    "beamRadius": 1,
+                    "framesTillRespawn": 4,
+                    "penaltyForBeingZapped": 0,
+                    "rewardForZapping": 0,
+                }
                 # "kwargs": {
-                #     "cooldownTime": 4,
-                #     "beamLength": 3,
-                #     "beamRadius": 1,
-                #     "framesTillRespawn": 4,
+                #     "cooldownTime": 1e30,
+                #     "beamLength": 0,
+                #     "beamRadius": 0,
+                #     "framesTillRespawn": 0,
                 #     "penaltyForBeingZapped": 0,
                 #     "rewardForZapping": 0,
                 # }
-                    "kwargs": {
-                        "cooldownTime": 1e30,
-                        "beamLength": 0,
-                        "beamRadius": 0,
-                        "framesTillRespawn": 0,
-                        "penaltyForBeingZapped": 0,
-                        "rewardForZapping": 0,
-                    }
             },
             {
                 "component": "ReadyToShootObservation",

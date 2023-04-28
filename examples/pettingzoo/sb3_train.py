@@ -92,13 +92,13 @@ def main():
     # Config
     # substrate_name = "commons_harvest__open"
     substrate_name = "commons_harvest__open"
-    player_roles = substrate.get_config(substrate_name).default_player_roles[:3]
+    player_roles = substrate.get_config(substrate_name).default_player_roles
     # input(player_roles)
     env_config = {"substrate": substrate_name, "roles": player_roles}
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config)
     rollout_len = 500
-    total_timesteps = 74997
+    total_timesteps = 1000000
     num_agents = 4#env.max_num_agents
 
     # Training
