@@ -125,6 +125,29 @@ W        PQ        W
 WWWWWWWWWWWWWWWWWWWW
 """
 
+SMALL_PATCH = """
+WWWWWWWWWWWWWWWWWWWW
+W                  W
+W                  W
+W        QP        W
+W                  W
+W                  W
+W                  W
+W                  W
+W       AAAA       W
+W  P    AAAA    Q  W
+W  Q    AAAA    P  W
+W       AAAA       W
+W                  W
+W                  W
+W                  W
+W                  W
+W        PQ        W
+W                  W
+W                  W
+WWWWWWWWWWWWWWWWWWWW
+"""
+
 FOUR_PATCH = """
 WWWWWWWWWWWWWWWWWWWW
 WAAAA          AAAAW
@@ -148,7 +171,7 @@ WAAAA          AAAAW
 WWWWWWWWWWWWWWWWWWWW
 """
 
-ASCII_MAP = ONE_PATCH
+ASCII_MAP = SMALL_PATCH
 
 # `prefab` determines which prefab game object to use for each `char` in the
 # ascii map.
@@ -341,7 +364,7 @@ ACTION_SET = (
     STEP_RIGHT,
     TURN_LEFT,
     TURN_RIGHT,
-    FIRE_ZAP,
+    #FIRE_ZAP,
 )
 
 TARGET_SPRITE_SELF = {

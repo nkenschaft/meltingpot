@@ -30,8 +30,7 @@ import torch.nn.functional as F
 from examples.pettingzoo import utils
 from meltingpot.python import substrate
 
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
-    "cpu")
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
 # Use this with lambda wrapper returning observations only
@@ -92,14 +91,14 @@ def main():
     # Config
     # substrate_name = "commons_harvest__open"
     substrate_name = "commons_harvest__open"
-    player_roles = substrate.get_config(substrate_name).default_player_roles[:4]
+    player_roles = substrate.get_config(substrate_name).default_player_roles[:1]
     # input(player_roles)
     env_config = {"substrate": substrate_name, "roles": player_roles}
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config)
     rollout_len = 500
     total_timesteps = 1000000
-    num_agents = 4#env.max_num_agents
+    num_agents = 1#env.max_num_agents
 
     # Training
     num_cpus = 8  # number of cpus
@@ -186,6 +185,7 @@ def main():
             policy_kwargs=policy_kwargs,
             tensorboard_log=tensorboard_log,
             verbose=verbose,
+            device=device,
         )
     else:
         model = stable_baselines3.PPO(
@@ -203,6 +203,7 @@ def main():
             policy_kwargs=policy_kwargs,
             tensorboard_log=tensorboard_log,
             verbose=verbose,
+            device=device,
         )
     eval_callback = callbacks.EvalCallback(
         eval_env, eval_freq=eval_freq, best_model_save_path=tensorboard_log)
