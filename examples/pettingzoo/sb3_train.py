@@ -30,7 +30,8 @@ import torch.nn.functional as F
 from examples.pettingzoo import utils
 from meltingpot.python import substrate
 
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+#device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+device = torch.device("cuda:5")
 
 
 # Use this with lambda wrapper returning observations only
@@ -87,22 +88,22 @@ class CustomCNN(torch_layers.BaseFeaturesExtractor):
 
 
 def main():
-    recurrent = len(argv) > 1 and argv[1] == "recurrent"
+    recurrent = True#len(argv) > 1 and argv[1] == "recurrent"
     # Config
-    # substrate_name = "commons_harvest__open"
     substrate_name = "commons_harvest__open"
-    player_roles = substrate.get_config(substrate_name).default_player_roles[:1]
-    # input(player_roles)
+
+    num_agents = 4
+    player_roles = substrate.get_config(substrate_name).default_player_roles[:num_agents]
     env_config = {"substrate": substrate_name, "roles": player_roles}
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config)
-    rollout_len = 500
-    total_timesteps = 1000000
-    num_agents = 1#env.max_num_agents
+    rollout_len = 1000
+    total_timesteps = 10_000_000
+    # num_agents = env.max_num_agents
 
     # Training
-    num_cpus = 8  # number of cpus
-    num_envs = 1  # number of parallel multi-agent environments
+    num_cpus = 12  # number of cpus
+    num_envs = 6  # number of parallel multi-agent environments
     # number of frames to stack together; use >4 to avoid automatic
     # VecTransposeImage
     num_frames = 1 if recurrent else 16
@@ -110,16 +111,17 @@ def main():
     # functions
     features_dim = 128
     fcnet_hiddens = [1024, 128]  # Two hidden layers for cnn extractor
-    ent_coef = 0.001  # entropy coefficient in loss
-    batch_size = (rollout_len * num_envs // 2
-                  )  # This is from the rllib baseline implementation
-    lr = 0.0001
-    n_epochs = 100
-    gae_lambda = 1.0
+    lr = 1e-5
+    batch_size = (rollout_len * num_envs // 2)  # This is from the rllib baseline implementation
+    n_epochs = 10
     gamma = 0.99
-    target_kl = 0.01
-    grad_clip = 40
-    verbose = 3
+    gae_lambda = 1.0
+    clip_range = 0.2
+    ent_coef = 0.001  # entropy coefficient in loss
+    vf_coef = 0.5  # value function coefficient in loss
+    target_kl = 0.003
+    grad_clip = 0.5
+    verbose = 2
 
     env = utils.parallel_env(render_mode="rgb_array", env_config=env_config, max_cycles=rollout_len)
     env = ss.observation_lambda_v0(env, lambda x, _: x["RGB"], lambda s: s["RGB"])
@@ -179,9 +181,11 @@ def main():
             n_epochs=n_epochs,
             gamma=gamma,
             gae_lambda=gae_lambda,
+            clip_range=clip_range,
             ent_coef=ent_coef,
+            vf_coef=vf_coef,
             max_grad_norm=grad_clip,
-            # target_kl=target_kl,
+            target_kl=target_kl,
             policy_kwargs=policy_kwargs,
             tensorboard_log=tensorboard_log,
             verbose=verbose,
@@ -197,7 +201,9 @@ def main():
             n_epochs=n_epochs,
             gamma=gamma,
             gae_lambda=gae_lambda,
+            clip_range=clip_range,
             ent_coef=ent_coef,
+            vf_coef=vf_coef,
             max_grad_norm=grad_clip,
             target_kl=target_kl,
             policy_kwargs=policy_kwargs,
@@ -209,18 +215,17 @@ def main():
         eval_env, eval_freq=eval_freq, best_model_save_path=tensorboard_log)
     print("Starting training...")
     try:
-        model.learn(total_timesteps=total_timesteps, progress_bar=True, callback=eval_callback)
+        model.learn(total_timesteps=total_timesteps, progress_bar=True)#, callback=eval_callback)
     except KeyboardInterrupt:
         pass
-    print("\nDone training!\n")
+    print("\nTraining ended.")
+    print("Saving...\n")
 
     logdir = model.logger.dir
     model.save(logdir + "/model")
     print("Model saved to {}".format(logdir))
-    del model
-    # model = stable_baselines3.PPO.load(logdir + "/model")  # noqa: F841
-    # obs = env.reset()
 
 
 if __name__ == "__main__":
     main()
+    exit(0)

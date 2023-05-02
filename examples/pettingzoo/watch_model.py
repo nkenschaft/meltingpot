@@ -19,7 +19,7 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device(
 
 
 def main():
-    recurrent = len(argv) == 3 and argv[2] == "recurrent"
+    recurrent = True#len(argv) == 3 and argv[2] == "recurrent"
     substrate_name = "commons_harvest__open"
     player_roles = substrate.get_config(substrate_name).default_player_roles[:4]
     env_config = {"substrate": substrate_name, "roles": player_roles}
@@ -55,7 +55,7 @@ def main():
     out_shape = np.array((160, 160)) * 3
     out = cv2.VideoWriter(f"results/output{model_num}_{'recurrent'*recurrent}.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10, out_shape)
     frames = 1
-    run_frames = 500
+    run_frames = rollout_len
     for _ in tqdm(range(run_frames)):
         # print(f"Frame {frames}")
         # save frame to video file

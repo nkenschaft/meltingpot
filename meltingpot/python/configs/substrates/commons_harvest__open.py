@@ -156,12 +156,12 @@ WAAAA          AAAAW
 WAAAQ          QAAAW
 W                  W
 W                  W
-W                  W
+W      P    P      W
 W                  W
 W        PP        W
 W        PP        W
 W                  W
-W                  W
+W      P    P      W
 W                  W
 W                  W
 WAAAQ          QAAAW
@@ -171,7 +171,7 @@ WAAAA          AAAAW
 WWWWWWWWWWWWWWWWWWWW
 """
 
-ASCII_MAP = SMALL_PATCH
+ASCII_MAP = BIG_PATCH
 
 # `prefab` determines which prefab game object to use for each `char` in the
 # ascii map.
@@ -364,7 +364,7 @@ ACTION_SET = (
     STEP_RIGHT,
     TURN_LEFT,
     TURN_RIGHT,
-    #FIRE_ZAP,
+    FIRE_ZAP,
 )
 
 TARGET_SPRITE_SELF = {
