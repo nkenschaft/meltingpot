@@ -46,7 +46,7 @@ def main():
     env = vec_env.VecFrameStack(env, num_frames)
     # edit manually
     model_num = 1 if len(argv) == 1 else int(argv[1])
-    logdir = f"./results/sb3/harvest_open_ppo_paramsharing/{'Recurrent'*recurrent}PPO_{model_num}"
+    logdir = f"./results-10m/{'Recurrent'*recurrent}PPO_{model_num}"
     if recurrent:
         model = sb3_contrib.RecurrentPPO.load(logdir + "/model")  # noqa: F841
     else:

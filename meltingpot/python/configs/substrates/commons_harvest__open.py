@@ -364,7 +364,7 @@ ACTION_SET = (
     STEP_RIGHT,
     TURN_LEFT,
     TURN_RIGHT,
-    FIRE_ZAP,
+    # FIRE_ZAP,
 )
 
 TARGET_SPRITE_SELF = {
